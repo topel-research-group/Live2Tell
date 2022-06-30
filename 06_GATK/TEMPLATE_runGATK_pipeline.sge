@@ -1,0 +1,42 @@
+#$ -cwd
+#$ -pe mpi 16
+#$ -q sandbox
+#$ -S /bin/bash
+
+set -e
+set -u
+set -o pipefail
+
+module load GATK/v4.1.8.0
+module load samtools/v1.10
+
+SAMPLE=${PWD##*/}
+REF=../Smar_v1.1.2.fasta
+INFILE1=../../01_mapping/${SAMPLE}/${SAMPLE}_sorted.bam
+INFILE2=${SAMPLE}.ReadGroups
+INFILE3=${SAMPLE}.g.vcf.gz
+OUTFILE=${SAMPLE}.vcf.gz
+
+gatk --java-options "-Xmx4g" AddOrReplaceReadGroups \
+	-I $INFILE1 \
+	-O ${INFILE2}.bam \
+	-LB foo \
+	-PL ILLUMINA \
+	-PU bar \
+	-SM ${SAMPLE}
+
+samtools index ${INFILE2}.bam ${INFILE2}.bai
+
+gatk --java-options "-Xmx4g" HaplotypeCaller \
+	-R $REF \
+	-I ${INFILE2}.bam \
+	-O $INFILE3 \
+	-ERC GVCF \
+	-bamout ${SAMPLE}.realigned.bam
+
+samtools index ${SAMPLE}.realigned.bam ${SAMPLE}.realigned.bai
+
+gatk --java-options "-Xmx4g" GenotypeGVCFs \
+	-R $REF \
+	-V $INFILE3 \
+	-O $OUTFILE \

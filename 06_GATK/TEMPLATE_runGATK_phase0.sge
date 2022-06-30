@@ -1,0 +1,51 @@
+#$ -cwd
+#$ -pe mpi 4
+#$ -q high_mem
+#$ -S /bin/bash
+
+set -e
+set -u
+set -o pipefail
+
+module load GATK/v4.1.8.0
+module load samtools/v1.10
+module load bcftools/v1.10.2
+
+SAMPLE=${PWD##*/}
+REF=../Smar_v1.1.2.fasta
+INFILE1=../../02b_barcoding_phased/${SAMPLE}/${SAMPLE}_sorted.0.bam
+INFILE2=${SAMPLE}.0.ReadGroups
+INFILE3=${SAMPLE}.0.g.vcf.gz
+OUTFILE1=${SAMPLE}.0.vcf.gz
+OUTFILE2=${SAMPLE}.0.filtered.vcf.gz
+OUTFILE3=${SAMPLE}_sorted.0.vcf.gz
+
+gatk --java-options "-Xmx4g" AddOrReplaceReadGroups \
+	-I $INFILE1 \
+	-O ${INFILE2}.bam \
+	-LB foo \
+	-PL ILLUMINA \
+	-PU bar \
+	-SM ${SAMPLE}
+
+samtools index ${INFILE2}.bam ${INFILE2}.bai
+
+gatk --java-options "-Xmx4g" HaplotypeCaller \
+	-R $REF \
+	-I ${INFILE2}.bam \
+	-O $INFILE3 \
+	-ERC GVCF \
+	-bamout ${SAMPLE}.realigned.0.bam
+
+samtools index ${SAMPLE}.realigned.0.bam ${SAMPLE}.realigned.0.bai
+
+gatk --java-options "-Xmx4g" GenotypeGVCFs \
+	-R $REF \
+	-V $INFILE3 \
+	-O $OUTFILE1
+
+bcftools filter --threads $NSLOTS -i "%QUAL>20" -Oz -o $OUTFILE2 $OUTFILE1
+
+ln -s $OUTFILE2 $OUTFILE3
+
+bcftools index --threads $NSLOTS $OUTFILE3

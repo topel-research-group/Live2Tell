@@ -1,0 +1,23 @@
+#$ -cwd
+#$ -pe mpi 4
+#$ -q Annotation-3
+#$ -S /bin/bash
+
+set -e
+set -u
+set -o pipefail
+
+module load bcftools/v1.10.2
+
+SAMPLE=${PWD##*/}
+
+OUTFILE1=${SAMPLE}.vcf.gz
+OUTFILE2=${SAMPLE}.filtered.vcf.gz
+OUTFILE3=${SAMPLE}_sorted.vcf.gz
+
+bcftools filter --threads $NSLOTS -i "%QUAL>20" -Oz -o $OUTFILE2 $OUTFILE1
+
+ln -s $OUTFILE2 $OUTFILE3
+
+bcftools index --threads $NSLOTS $OUTFILE3
+
