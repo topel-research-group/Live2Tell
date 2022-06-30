@@ -1,0 +1,41 @@
+#$ -cwd
+#$ -pe mpi 40
+#$ -q Annotation-3
+#$ -S /bin/bash
+
+module load Anaconda3/v2019.10
+module load samtools/v1.10
+module load bcftools/v1.10.2
+module load Bedtools2/v2.27.1
+
+# Note that sample 111 has been removed
+
+bamboozle.py barcode --primer_size 21 --window_size 500 -f Smar_v1.1.2.fasta \
+-b P14203_101/P14203_101_sorted.bam P14203_102/P14203_102_sorted.bam \
+P14203_103/P14203_103_sorted.bam P14203_104/P14203_104_sorted.bam \
+P14203_105/P14203_105_sorted.bam P14203_106/P14203_106_sorted.bam \
+P14203_107/P14203_107_sorted.bam P14203_108/P14203_108_sorted.bam \
+P14203_109/P14203_109_sorted.bam P14203_110/P14203_110_sorted.bam \
+P14203_113/P14203_113_sorted.bam P14203_114/P14203_114_sorted.bam \
+P14203_115/P14203_115_sorted.bam P14203_116/P14203_116_sorted.bam \
+P14203_117/P14203_117_sorted.bam P14203_118/P14203_118_sorted.bam \
+P14203_119/P14203_119_sorted.bam P14203_120/P14203_120_sorted.bam \
+P14203_121/P14203_121_sorted.bam P14203_122/P14203_122_sorted.bam \
+P14203_123/P14203_123_sorted.bam P14203_124/P14203_124_sorted.bam \
+P14203_125/P14203_125_sorted.bam P14203_126/P14203_126_sorted.bam \
+P14203_127/P14203_127_sorted.bam P14203_128/P14203_128_sorted.bam \
+P14203_129/P14203_129_sorted.bam P14203_130/P14203_130_sorted.bam \
+P14203_131/P14203_131_sorted.bam P14203_132/P14203_132_sorted.bam \
+P14203_133/P14203_133_sorted.bam P14203_134/P14203_134_sorted.bam \
+P14203_135/P14203_135_sorted.bam P14203_136/P14203_136_sorted.bam \
+P14203_137/P14203_137_sorted.bam P14203_138/P14203_138_sorted.bam \
+P14203_139/P14203_139_sorted.bam P14203_140/P14203_140_sorted.bam \
+P14203_141/P14203_141_sorted.bam P14203_142/P14203_142_sorted.bam \
+P14203_143/P14203_143_sorted.bam P14203_144/P14203_144_sorted.bam \
+P14203_145/P14203_145_sorted.bam P14203_146/P14203_146_sorted.bam \
+P14203_147/P14203_147_sorted.bam P14203_148/P14203_148_sorted.bam \
+P14203_149/P14203_149_sorted.bam P14203_150/P14203_150_sorted.bam \
+P14203_151/P14203_151_sorted.bam P14203_152/P14203_152_sorted.bam \
+P14203_153/P14203_153_sorted.bam P14203_154/P14203_154_sorted.bam \
+P14203_155/P14203_155_sorted.bam P14203_156/P14203_156_sorted.bam \
+-o Live2Tell_p21_w500_GATK_no112 -t $NSLOTS -v --dev --ploidy diploid
